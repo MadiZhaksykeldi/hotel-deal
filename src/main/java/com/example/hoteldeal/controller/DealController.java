@@ -20,26 +20,18 @@ public class DealController {
     @Autowired
     DealService service;
 
-    @Autowired
-    RestTemplate restTemplate;
-
+    @HystrixCommand(fallbackMethod = "getFallbackDeal")
     @GetMapping(path = "/deals")
     public List<Deal> getAllDeals() {
         return service.getAllDeals();
     }
 
-    @HystrixCommand(fallbackMethod = "getFallbackDeal",
-            threadPoolProperties = {
-                    @HystrixProperty(name = "coreSize", value = "20"),
-                    @HystrixProperty(name = "maxQueueSize", value = "10"),
-            }
-    )
     @GetMapping(path = "/deals/{id}")
     public Optional<Deal> getDealsById(@PathVariable("id") long id) {
         return service.getDealsById(id);
     }
 
-    public List<Deal> getFallbackDeal(@PathVariable("id") long id) {
+    public List<Deal> getFallbackDeal() {
         List<Deal> dealList = new ArrayList<>();
         dealList.add(new Deal());
         return dealList;
